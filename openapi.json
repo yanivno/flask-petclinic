@@ -1,0 +1,1718 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Flask PetClinic REST API",
+    "description": "REST API for the Flask PetClinic application, based on Spring Petclinic REST API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "PetClinic API"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "owners",
+      "description": "Pet owner management"
+    },
+    {
+      "name": "pets",
+      "description": "Pet management"
+    },
+    {
+      "name": "vets",
+      "description": "Veterinarian management"
+    },
+    {
+      "name": "visits",
+      "description": "Vet visit management"
+    },
+    {
+      "name": "pettypes",
+      "description": "Pet type management"
+    },
+    {
+      "name": "specialties",
+      "description": "Vet specialty management"
+    }
+  ],
+  "paths": {
+    "/api/owners": {
+      "get": {
+        "tags": ["owners"],
+        "summary": "Retrieve all pet owners",
+        "description": "Returns a list of all pet owners, optionally filtered by last name",
+        "operationId": "listOwners",
+        "parameters": [
+          {
+            "name": "lastName",
+            "in": "query",
+            "description": "Filter owners by last name (prefix match)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Owner"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["owners"],
+        "summary": "Add a new pet owner",
+        "description": "Creates a new pet owner",
+        "operationId": "addOwner",
+        "requestBody": {
+          "description": "Owner object to be added",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OwnerFields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Owner created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Owner"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/owners/{ownerId}": {
+      "get": {
+        "tags": ["owners"],
+        "summary": "Get a pet owner by ID",
+        "description": "Returns a single pet owner",
+        "operationId": "getOwner",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "in": "path",
+            "description": "ID of owner to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Owner"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["owners"],
+        "summary": "Update an owner's details",
+        "description": "Updates an existing pet owner",
+        "operationId": "updateOwner",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "in": "path",
+            "description": "ID of owner to update",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Owner object with updated fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OwnerFields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Owner updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Owner"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["owners"],
+        "summary": "Delete an owner",
+        "description": "Deletes a pet owner and all associated pets",
+        "operationId": "deleteOwner",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "in": "path",
+            "description": "ID of owner to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Owner deleted successfully"
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/owners/{ownerId}/pets": {
+      "post": {
+        "tags": ["owners", "pets"],
+        "summary": "Add a new pet to an owner",
+        "description": "Creates a new pet for the specified owner",
+        "operationId": "addPetToOwner",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "in": "path",
+            "description": "ID of owner",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Pet object to be added",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PetFields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pet created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/owners/{ownerId}/pets/{petId}": {
+      "get": {
+        "tags": ["owners", "pets"],
+        "summary": "Get a pet by ID (owner's pet)",
+        "description": "Returns a pet belonging to the specified owner",
+        "operationId": "getOwnersPet",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "in": "path",
+            "description": "ID of owner",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner or pet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["owners", "pets"],
+        "summary": "Update pet details (owner's pet)",
+        "description": "Updates a pet belonging to the specified owner",
+        "operationId": "updateOwnersPet",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "in": "path",
+            "description": "ID of owner",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Pet object with updated fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PetFields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Pet updated successfully"
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner or pet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/owners/{ownerId}/pets/{petId}/visits": {
+      "post": {
+        "tags": ["owners", "visits"],
+        "summary": "Add a vet visit for a pet",
+        "description": "Creates a new visit for the specified pet",
+        "operationId": "addVisitToOwner",
+        "parameters": [
+          {
+            "name": "ownerId",
+            "in": "path",
+            "description": "ID of owner",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Visit object to be added",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitFields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Visit created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Visit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner or pet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pets": {
+      "get": {
+        "tags": ["pets"],
+        "summary": "Retrieve all pets",
+        "description": "Returns a list of all pets",
+        "operationId": "listPets",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pets/{petId}": {
+      "get": {
+        "tags": ["pets"],
+        "summary": "Get a pet by ID",
+        "description": "Returns a single pet",
+        "operationId": "getPet",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["pets"],
+        "summary": "Update pet details",
+        "description": "Updates an existing pet",
+        "operationId": "updatePet",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet to update",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Pet object with updated fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pet updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["pets"],
+        "summary": "Delete a pet",
+        "description": "Deletes a pet",
+        "operationId": "deletePet",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Pet deleted successfully"
+          },
+          "404": {
+            "description": "Pet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vets": {
+      "get": {
+        "tags": ["vets"],
+        "summary": "Retrieve all veterinarians",
+        "description": "Returns a list of all veterinarians",
+        "operationId": "listVets",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Vet"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["vets"],
+        "summary": "Add a new vet",
+        "description": "Creates a new veterinarian",
+        "operationId": "addVet",
+        "requestBody": {
+          "description": "Vet object to be added",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Vet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vet created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vets/{vetId}": {
+      "get": {
+        "tags": ["vets"],
+        "summary": "Get a vet by ID",
+        "description": "Returns a single veterinarian",
+        "operationId": "getVet",
+        "parameters": [
+          {
+            "name": "vetId",
+            "in": "path",
+            "description": "ID of vet to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vet"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["vets"],
+        "summary": "Update vet details",
+        "description": "Updates an existing veterinarian",
+        "operationId": "updateVet",
+        "parameters": [
+          {
+            "name": "vetId",
+            "in": "path",
+            "description": "ID of vet to update",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Vet object with updated fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Vet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vet updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vet"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["vets"],
+        "summary": "Delete a vet",
+        "description": "Deletes a veterinarian",
+        "operationId": "deleteVet",
+        "parameters": [
+          {
+            "name": "vetId",
+            "in": "path",
+            "description": "ID of vet to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Vet deleted successfully"
+          },
+          "404": {
+            "description": "Vet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pettypes": {
+      "get": {
+        "tags": ["pettypes"],
+        "summary": "Retrieve all pet types",
+        "description": "Returns a list of all pet types",
+        "operationId": "listPetTypes",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PetType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["pettypes"],
+        "summary": "Add a new pet type",
+        "description": "Creates a new pet type",
+        "operationId": "addPetType",
+        "requestBody": {
+          "description": "Pet type object to be added",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PetType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pet type created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PetType"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pettypes/{petTypeId}": {
+      "get": {
+        "tags": ["pettypes"],
+        "summary": "Get a pet type by ID",
+        "description": "Returns a single pet type",
+        "operationId": "getPetType",
+        "parameters": [
+          {
+            "name": "petTypeId",
+            "in": "path",
+            "description": "ID of pet type to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PetType"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pet type not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["pettypes"],
+        "summary": "Update pet type details",
+        "description": "Updates an existing pet type",
+        "operationId": "updatePetType",
+        "parameters": [
+          {
+            "name": "petTypeId",
+            "in": "path",
+            "description": "ID of pet type to update",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Pet type object with updated fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PetType"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pet type updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PetType"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pet type not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["pettypes"],
+        "summary": "Delete a pet type",
+        "description": "Deletes a pet type",
+        "operationId": "deletePetType",
+        "parameters": [
+          {
+            "name": "petTypeId",
+            "in": "path",
+            "description": "ID of pet type to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Pet type deleted successfully"
+          },
+          "404": {
+            "description": "Pet type not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/specialties": {
+      "get": {
+        "tags": ["specialties"],
+        "summary": "Retrieve all vet specialties",
+        "description": "Returns a list of all vet specialties",
+        "operationId": "listSpecialties",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Specialty"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["specialties"],
+        "summary": "Add a new specialty",
+        "description": "Creates a new vet specialty",
+        "operationId": "addSpecialty",
+        "requestBody": {
+          "description": "Specialty object to be added",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Specialty"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Specialty created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Specialty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/specialties/{specialtyId}": {
+      "get": {
+        "tags": ["specialties"],
+        "summary": "Get a specialty by ID",
+        "description": "Returns a single vet specialty",
+        "operationId": "getSpecialty",
+        "parameters": [
+          {
+            "name": "specialtyId",
+            "in": "path",
+            "description": "ID of specialty to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Specialty"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Specialty not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["specialties"],
+        "summary": "Update specialty details",
+        "description": "Updates an existing vet specialty",
+        "operationId": "updateSpecialty",
+        "parameters": [
+          {
+            "name": "specialtyId",
+            "in": "path",
+            "description": "ID of specialty to update",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Specialty object with updated fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Specialty"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Specialty updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Specialty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Specialty not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["specialties"],
+        "summary": "Delete a specialty",
+        "description": "Deletes a vet specialty",
+        "operationId": "deleteSpecialty",
+        "parameters": [
+          {
+            "name": "specialtyId",
+            "in": "path",
+            "description": "ID of specialty to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Specialty deleted successfully"
+          },
+          "404": {
+            "description": "Specialty not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/visits": {
+      "get": {
+        "tags": ["visits"],
+        "summary": "Retrieve all vet visits",
+        "description": "Returns a list of all vet visits",
+        "operationId": "listVisits",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Visit"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["visits"],
+        "summary": "Add a new visit",
+        "description": "Creates a new vet visit",
+        "operationId": "addVisit",
+        "requestBody": {
+          "description": "Visit object to be added",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Visit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Visit created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Visit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pet not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/visits/{visitId}": {
+      "get": {
+        "tags": ["visits"],
+        "summary": "Get a visit by ID",
+        "description": "Returns a single vet visit",
+        "operationId": "getVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "description": "ID of visit to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Visit"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Visit not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["visits"],
+        "summary": "Update a visit",
+        "description": "Updates an existing vet visit",
+        "operationId": "updateVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "description": "ID of visit to update",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Visit object with updated fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitFields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Visit updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Visit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Visit not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["visits"],
+        "summary": "Delete a visit",
+        "description": "Deletes a vet visit",
+        "operationId": "deleteVisit",
+        "parameters": [
+          {
+            "name": "visitId",
+            "in": "path",
+            "description": "ID of visit to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Visit deleted successfully"
+          },
+          "404": {
+            "description": "Visit not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Owner": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true,
+            "example": 1
+          },
+          "firstName": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "George"
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "Franklin"
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "110 W. Liberty St."
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 80,
+            "example": "Madison"
+          },
+          "telephone": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "6085551023"
+          },
+          "pets": {
+            "type": "array",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/Pet"
+            }
+          }
+        },
+        "required": ["firstName", "lastName", "address", "city", "telephone"]
+      },
+      "OwnerFields": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "George"
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "Franklin"
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "110 W. Liberty St."
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 80,
+            "example": "Madison"
+          },
+          "telephone": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "6085551023"
+          }
+        },
+        "required": ["firstName", "lastName", "address", "city", "telephone"]
+      },
+      "Pet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true,
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "Leo"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2010-09-07"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PetType"
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "visits": {
+            "type": "array",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/Visit"
+            }
+          }
+        },
+        "required": ["name"]
+      },
+      "PetFields": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "Leo"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2010-09-07"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PetType"
+          }
+        },
+        "required": ["name"]
+      },
+      "PetType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "example": "cat"
+          }
+        },
+        "required": ["name"]
+      },
+      "Vet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true,
+            "example": 1
+          },
+          "firstName": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "James"
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 30,
+            "example": "Carter"
+          },
+          "specialties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Specialty"
+            }
+          }
+        },
+        "required": ["firstName", "lastName"]
+      },
+      "Specialty": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "example": "radiology"
+          }
+        },
+        "required": ["name"]
+      },
+      "Visit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true,
+            "example": 1
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2013-01-01"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "rabies shot"
+          },
+          "petId": {
+            "type": "integer",
+            "format": "int32",
+            "example": 7
+          }
+        },
+        "required": ["description", "petId"]
+      },
+      "VisitFields": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2013-01-01"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "rabies shot"
+          }
+        },
+        "required": ["description"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Resource not found"
+          }
+        }
+      }
+    }
+  }
+}
