@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{% if is_new %}New Pet{% else %}Edit Pet{% endif %}</h2>
+
+<h3>Owner: {{ owner.first_name }} {{ owner.last_name }}</h3>
+
+<form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    
+    <div class="mb-3">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+        {% for error in form.name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.birth_date.label(class="form-label") }}
+        {{ form.birth_date(class="form-control" + (" is-invalid" if form.birth_date.errors else ""), type="date") }}
+        {% for error in form.birth_date.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.type_id.label(class="form-label") }}
+        {{ form.type_id(class="form-select" + (" is-invalid" if form.type_id.errors else "")) }}
+        {% for error in form.type_id.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+    </div>
+    
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

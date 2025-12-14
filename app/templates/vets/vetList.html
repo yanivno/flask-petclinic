@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Veterinarians</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Specialties</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for vet in vets %}
+        <tr>
+            <td>{{ vet.first_name }} {{ vet.last_name }}</td>
+            <td>
+                {% if vet.specialties %}
+                    {% for specialty in vet.specialties %}
+                        {{ specialty.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                {% else %}
+                    none
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        {% if pagination.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('vets.show_vets', page=pagination.prev_num) }}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+                <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('vets.show_vets', page=page_num) }}">{{ page_num }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if pagination.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('vets.show_vets', page=pagination.next_num) }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>New Visit</h2>
+
+<h3>Pet: {{ pet.name }}</h3>
+
+<table class="table table-striped">
+    <tr>
+        <th>Name</th>
+        <td>{{ pet.name }}</td>
+    </tr>
+    <tr>
+        <th>Birth Date</th>
+        <td>{{ pet.birth_date.strftime('%Y-%m-%d') if pet.birth_date else '' }}</td>
+    </tr>
+    <tr>
+        <th>Type</th>
+        <td>{{ pet.type.name if pet.type else '' }}</td>
+    </tr>
+    <tr>
+        <th>Owner</th>
+        <td>{{ owner.first_name }} {{ owner.last_name }}</td>
+    </tr>
+</table>
+
+<h3>Previous Visits</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for visit in pet.visits %}
+        <tr>
+            <td>{{ visit.date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ visit.description }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="2">No previous visits</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>New Visit</h3>
+<form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    
+    <div class="mb-3">
+        {{ form.date.label(class="form-label") }}
+        {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), type="date") }}
+        {% for error in form.date.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.description.label(class="form-label") }}
+        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=3) }}
+        {% for error in form.description.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+    </div>
+    
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}
