@@ -13,5 +13,15 @@ flask_app = create_app()
 with flask_app.app_context():
     db.create_all()
 
-# Create the Azure Functions WSGI app
-app = func.WsgiFunctionApp(app=flask_app.wsgi_app, http_auth_level=func.AuthLevel.ANONYMOUS)
+# WSGI middleware for Flask
+wsgi_middleware = func.WsgiMiddleware(flask_app.wsgi_app)
+
+# Create the Azure Functions app
+app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
+
+
+@app.function_name("FlaskApp")
+@app.route(route="{*route}", auth_level=func.AuthLevel.ANONYMOUS)
+def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+    """Main route handler for the Flask app."""
+    return wsgi_middleware.handle(req, context)
